@@ -4,7 +4,6 @@
           name="image"
           ref="pond"
           label-idle="Click to Choose image, or Drag Here..."
-          server="/upload"
           @init="handleFilePondInit"
           accepted-file-types="image/*"
       />
@@ -13,7 +12,7 @@
 </template>
 
 <script>
-import vueFilePond from 'vue-filepond';
+import vueFilePond, {setOptions} from 'vue-filepond';
 // Import plugins
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.esm.js';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.esm.js';
@@ -21,6 +20,17 @@ import FilePondPluginImagePreview from 'filepond-plugin-image-preview/dist/filep
 // Import styles
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
+
+setOptions({
+    server:{
+        process:{
+            url: '/upload',
+            headers:{
+                'X-CSRF-TOKEN': document.head.querySelector('meta[name="csrf_token"]').content
+            }
+        }
+    }
+});
 
 const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
