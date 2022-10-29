@@ -6,9 +6,10 @@
                 ref="pond"
                 label-idle="Click to Choose image, or Drag Here..."
                 @init="handleFilePondInit"
-                accepted-file-types="image/*"
+                accepted-file-types="image/jpg, image/jpeg, image/png"
                 @processfile="handleProcessesFile"
                 allow-multiple="true"
+                max-file-size="1MB"
             />
         </div>
         <div class="mt-8 mb-24">
@@ -28,25 +29,34 @@
 <script>
 import vueFilePond, {setOptions} from 'vue-filepond';
 // Import plugins
-import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.esm.js';
-import FilePondPluginImagePreview from 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.esm.js';
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 
 // Import styles
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
+let serverMessages = {};
 
 setOptions({
     server:{
         process:{
             url: '/upload',
+            onerror:(response)=>{
+                serverMessages = JSON.parse(response)
+            },
             headers:{
                 'X-CSRF-TOKEN': document.head.querySelector('meta[name="csrf_token"]').content
             }
         }
+    },
+    labelFileProcessingError:()=>{
+        return serverMessages.error
     }
+
 });
 
-const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
+const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview, FilePondPluginFileValidateSize);
 
 export default {
     components: {
